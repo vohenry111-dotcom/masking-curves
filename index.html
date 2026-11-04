@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="An uncalibrated browser experiment for measuring personal frequency masking curves.">
+  <title>Frequency Masking Curves</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div>
+      <p class="eyebrow">MUE 510 · Psychoacoustics</p>
+      <h1>Frequency masking curves</h1>
+      <p class="subtitle">A two-interval forced-choice experiment for one listener’s hearing data.</p>
+    </div>
+    <div class="header-status" aria-live="polite">
+      <span id="sessionBadge" class="status-badge">No active session</span>
+      <span id="saveStatus">Not saved</span>
+    </div>
+  </header>
+
+  <main class="app-shell">
+    <section class="notice safety-notice">
+      <strong>Safety and calibration</strong>
+      <span>Use headphones in a quiet room. Start low, listen only at a comfortable level, and stop if any sound is uncomfortable. This app is uncalibrated: levels are dBFS, not dB SPL. Do not change the operating-system volume during a session.</span>
+    </section>
+
+    <section id="setupSection" class="card setup-grid">
+      <div>
+        <p class="section-kicker">01 · Prepare</p>
+        <h2>Setup and experiment plan</h2>
+        <p class="muted">Choose the masker centers and probe grid before collecting data. The default plan uses three masker frequencies and a 2-down, 1-up staircase.</p>
+        <label class="check-row"><input id="headphoneCheck" type="checkbox"> I have set my system volume low and completed a comfortable headphone check.</label>
+        <div class="button-row">
+          <button id="headphoneButton" class="button secondary">Play headphone check</button>
+          <button id="startSessionButton" class="button primary" disabled>Start new session</button>
+          <button id="resumeButton" class="button ghost" hidden>Resume saved session</button>
+        </div>
+      </div>
+      <div class="plan-panel">
+        <label>Masker center frequencies (Hz)
+          <input id="maskerFrequencies" type="text" value="500, 1000, 2000" inputmode="decimal">
+        </label>
+        <label>Masker level (dBFS)
+          <input id="maskerLevel" type="number" value="-35" min="-80" max="-10" step="1">
+        </label>
+        <label>Probe ratios relative to masker
+          <input id="probeRatios" type="text" value="0.50, 0.70, 0.85, 0.95, 1.00, 1.05, 1.20, 1.50, 2.00" inputmode="decimal">
+        </label>
+        <label class="check-row"><input id="includeBaseline" type="checkbox" checked> Measure no-masker baseline conditions</label>
+        <label class="check-row"><input id="randomizeConditions" type="checkbox" checked> Randomize condition order</label>
+        <details>
+          <summary>Advanced staircase settings</summary>
+          <div class="two-col compact">
+            <label>Start probe (dBFS)<input id="startLevel" type="number" value="-25" min="-79" max="-10"></label>
+            <label>Minimum probe (dBFS)<input id="minLevel" type="number" value="-80" min="-100" max="-11"></label>
+            <label>Maximum probe (dBFS)<input id="maxLevel" type="number" value="-10" min="-79" max="0"></label>
+            <label>Max trials/condition<input id="maxTrials" type="number" value="60" min="8" max="300"></label>
+            <label>Interval duration (ms)<input id="intervalMs" type="number" value="600" min="200" max="2000"></label>
+            <label>Gap (ms)<input id="gapMs" type="number" value="400" min="100" max="1500"></label>
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <section id="experimentSection" class="card" hidden>
+      <div class="section-heading">
+        <div>
+          <p class="section-kicker">02 · Measure</p>
+          <h2>Current condition</h2>
+        </div>
+        <div class="button-row">
+          <button id="pauseButton" class="button secondary" disabled>Pause</button>
+          <button id="restartConditionButton" class="button ghost" disabled>Restart condition</button>
+          <button id="abortButton" class="button danger" disabled>Abort run</button>
+        </div>
+      </div>
+      <div class="condition-banner">
+        <div><span class="label">Condition</span><strong id="conditionLabel">—</strong></div>
+        <div><span class="label">Probe</span><strong id="probeFrequencyLabel">—</strong></div>
+        <div><span class="label">Masker</span><strong id="maskerFrequencyLabel">—</strong></div>
+        <div><span class="label">Progress</span><strong id="conditionProgressLabel">—</strong></div>
+      </div>
+      <div class="experiment-grid">
+        <div class="trial-card">
+          <div class="trial-meta">
+            <span>Trial <strong id="trialNumberLabel">0</strong></span>
+            <span>Reversals <strong id="reversalLabel">0 / 8</strong></span>
+            <span>Probe level <strong id="currentLevelLabel">—</strong></span>
+          </div>
+          <div class="progress-track"><span id="trialProgress" style="width:0%"></span></div>
+          <p id="trialInstruction" class="trial-instruction">Press “Play trial” to hear two sequential intervals. In a masked condition, both contain the masker and one also contains the probe; the tones may blend into one sound.</p>
+          <div class="button-row trial-controls">
+            <button id="playTrialButton" class="button primary big">Play trial</button>
+            <button id="stopAudioButton" class="button secondary" disabled>Stop audio</button>
+          </div>
+          <div class="choice-grid" aria-label="Choose which interval contained the probe">
+            <button id="interval1Button" class="interval-button" disabled>1 <span>Interval 1</span></button>
+            <button id="interval2Button" class="interval-button" disabled>2 <span>Interval 2</span></button>
+          </div>
+          <p id="responseMessage" class="response-message" aria-live="polite"></p>
+          <p class="keyboard-help">Keyboard shortcuts: <kbd>1</kbd> or <kbd>2</kbd> after playback finishes.</p>
+        </div>
+        <div class="progress-card">
+          <h3>Session progress</h3>
+          <div id="sessionProgressList" class="session-progress-list"></div>
+          <p class="muted small">A condition becomes valid only after eight reversals. Runs stopped at the trial limit are retained as incomplete.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="dashboardSection" class="card">
+      <div class="section-heading">
+        <div>
+          <p class="section-kicker">03 · Inspect</p>
+          <h2>Dashboard</h2>
+        </div>
+        <div class="button-row">
+          <button id="demoButton" class="button ghost">Load demo data</button>
+          <button id="clearDemoButton" class="button ghost" hidden>Remove demo data</button>
+        </div>
+      </div>
+      <div id="demoNotice" class="notice demo-notice" hidden>DEMO, NOT MEASURED — synthetic data is displayed separately and is not part of your session.</div>
+      <div class="chart-grid">
+        <article class="chart-card"><div class="chart-title"><h3>Masked thresholds</h3><button class="icon-button" data-export-chart="maskedChart">Export PNG</button></div><p class="chart-subtitle">Probe frequency (Hz, logarithmic) · threshold (dBFS)</p><canvas id="maskedChart" width="900" height="420" aria-label="Masked threshold chart"></canvas></article>
+        <article class="chart-card"><div class="chart-title"><h3>Masking amount</h3><button class="icon-button" data-export-chart="maskingChart">Export PNG</button></div><p class="chart-subtitle">Probe frequency (Hz, logarithmic) · masking amount (dB)</p><canvas id="maskingChart" width="900" height="420" aria-label="Masking amount chart"></canvas></article>
+        <article class="chart-card full-width"><div class="chart-title"><h3>Staircase diagnostic</h3><button class="icon-button" data-export-chart="staircaseChart">Export PNG</button></div><p id="staircaseSubtitle" class="chart-subtitle">Select or run a condition to inspect trial levels and reversals.</p><canvas id="staircaseChart" width="1200" height="360" aria-label="Staircase diagnostic chart"></canvas></article>
+      </div>
+      <div class="table-heading"><h3>Threshold summary</h3><button id="exportSummaryButton" class="button secondary">Export summary CSV</button></div>
+      <div class="table-wrap"><table id="summaryTable"><thead><tr><th>Type</th><th>Masker</th><th>Masker level</th><th>Probe</th><th>Threshold</th><th>Baseline</th><th>Masking</th><th>Trials</th><th>Reversals</th><th>Status</th></tr></thead><tbody></tbody></table></div>
+      <div class="table-heading"><h3>Raw measurements</h3><button id="exportTrialsButton" class="button secondary">Export trials CSV</button></div>
+      <div class="table-wrap raw-table-wrap"><table id="rawTable"><thead><tr><th>Time</th><th>Type</th><th>Masker</th><th>Probe</th><th>Level</th><th>Target</th><th>Chosen</th><th>Correct</th><th>Step</th><th>Direction</th><th>Reversal</th></tr></thead><tbody></tbody></table></div>
+    </section>
+
+    <section class="lower-grid">
+      <section class="card">
+        <p class="section-kicker">04 · Reflect</p>
+        <h2>AI prediction and engineering log</h2>
+        <div class="prediction-box"><strong>Hypothesis before measurement</strong><p>Masking should be strongest at or near the masker frequency, decline with frequency separation, and may spread asymmetrically. Curves may become broader in Hz at higher masker center frequencies. This is a qualitative prediction, not a measured result.</p></div>
+        <label>AI prompt used<textarea id="aiPrompt" rows="3" placeholder="Paste the prompt you used before collecting data."></textarea></label>
+        <label>AI suggestion<textarea id="aiSuggestion" rows="3" placeholder="Paste or summarize the AI response."></textarea></label>
+        <label>What did you do with the suggestion?<select id="aiDisposition"><option value="">Choose…</option><option>Accepted</option><option>Modified</option><option>Rejected</option></select></label>
+        <label>Student reason<textarea id="aiReason" rows="3" placeholder="Explain your decision after reviewing the suggestion."></textarea></label>
+        <button id="saveAiLogButton" class="button secondary">Save AI log</button>
+        <p id="aiLogStatus" class="muted small" aria-live="polite"></p>
+      </section>
+      <section class="card">
+        <p class="section-kicker">05 · Data controls</p>
+        <h2>Save and export</h2>
+        <p class="muted">The active session autosaves after every response in this browser’s local storage.</p>
+        <div class="stacked-buttons">
+          <button id="newSessionButton" class="button primary">Start new session</button>
+          <button id="exportJsonButton" class="button secondary">Export JSON backup</button>
+          <button id="importJsonButton" class="button secondary">Import JSON backup</button>
+          <input id="importJsonInput" type="file" accept="application/json" hidden>
+          <button id="deleteSessionButton" class="button danger">Delete current session</button>
+        </div>
+        <details class="manual-checks"><summary>Manual end-to-end test checklist</summary><ul><li>Complete the headphone warning and start a session.</li><li>Play a trial; confirm both intervals have equal timing and only one has a probe.</li><li>Confirm response buttons and keys are locked until playback ends.</li><li>Submit correct and incorrect responses; observe 2-down, 1-up behavior.</li><li>Refresh the page and resume the session.</li><li>Export and re-import JSON; export both CSV files and PNG charts.</li><li>Run developer tests and inspect any failures before collecting data.</li></ul></details>
+      </section>
+    </section>
+
+    <section class="card developer-card">
+      <details><summary>Developer tests and implementation checks</summary><div class="button-row"><button id="runTestsButton" class="button secondary">Run pure-function tests</button><span id="testSummary" class="muted" aria-live="polite"></span></div><pre id="testOutput" class="test-output">Tests have not been run.</pre><p class="muted small">Audio comfort, clicks, browser timing, and headphone response still require the manual checklist above.</p></details>
+    </section>
+  </main>
+  <footer class="site-footer"><span>Uncalibrated educational experiment · dBFS only</span><span>All interpretations belong to the listener/student.</span></footer>
+  <script src="app.js?v=3"></script>
+</body>
+</html>
