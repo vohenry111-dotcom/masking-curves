@@ -4,16 +4,17 @@ This is a self-contained browser app for the MUE 510 frequency-masking experimen
 
 ## Run locally on macOS
 
-Open **Terminal**, change into this project folder, and start a local static server. The `python3` command is already available on many Macs with Python installed:
+Open **Terminal**, clone the repository, change into the cloned folder, and start a local static server. The `python3` command is already available on many Macs with Python installed:
 
 ```bash
-cd "/Users/henryvo/Documents/UMIAMI stuff/MUE 510/Personal Masking Curves"
+git clone https://github.com/vohenry111-dotcom/masking-curves.git
+cd masking-curves
 python3 -m http.server 8000
 ```
 
 Keep that Terminal window open while using the app. Then open <http://localhost:8000> in Safari, Chrome, Firefox, or Edge on your Mac. Press **Control-C** in Terminal when you are finished to stop the server.
 
-If macOS reports that `python3` is not found, install Python 3 from the official Python installer or use an existing Python installation, then rerun the command. The app does not require microphone access, an account, a database, a cloud service, a build system, or an external chart library.
+If macOS reports that `python3` is not found, install Python 3 from the official Python installer or use an existing Python installation, then rerun the command. On Windows or Linux, use the equivalent terminal and `cd` command. The app does not require microphone access, an account, a database, a cloud service, a build system, or an external chart library.
 
 For the experiment, use headphones connected to the Mac, set the Mac volume low before the headphone check, and avoid changing the Mac’s system volume during a session. Safari and Chrome are recommended if another browser has Web Audio timing issues.
 
