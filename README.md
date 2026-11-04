@@ -1,6 +1,6 @@
 # Frequency Masking Curves
 
-This is a self-contained browser app for the MUE 510 frequency-masking experiment. It uses the Web Audio API to present a masker and probe, collects a listener’s two-interval forced-choice responses, estimates thresholds with an adaptive staircase, and plots the measurements.
+This is a self-contained browser app for measuring personal frequency-masking curves. It uses the Web Audio API to present a masker and probe, collects a listener’s two-interval forced-choice responses, estimates thresholds with an adaptive staircase, and plots the measurements.
 
 ## Run locally on macOS
 
